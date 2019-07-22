@@ -3,12 +3,23 @@ package ru.falseteam.syncdns
 import me.legrange.mikrotik.MikrotikApiException
 import org.ini4j.Ini
 import java.io.File
+import java.io.FileNotFoundException
 import java.util.regex.Pattern
 import kotlin.system.exitProcess
 
 fun main() {
-    val credentials = Ini(File("routers.ini")).toListOfCredential()
-    val records = Ini(File("records.ini")).toListOfDNSRecord()
+    val credentials = try {
+        Ini(File("routers.ini")).toListOfCredential()
+    } catch (e: FileNotFoundException) {
+        println(e.message)
+        exitProcess(1)
+    }
+    val records = try {
+        Ini(File("records.ini")).toListOfDNSRecord()
+    } catch (e: FileNotFoundException) {
+        println(e.message)
+        exitProcess(1)
+    }
     val duplicates = records.getDuplicates()
     if (duplicates.isNotEmpty()) {
         println("Found duplicates: ${duplicates.joinToString(", ")}")
