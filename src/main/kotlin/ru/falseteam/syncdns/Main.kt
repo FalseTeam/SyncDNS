@@ -32,7 +32,7 @@ fun updateDnsTable(credential: Credential, records: Map<String, List<DnsRecord>>
     list += override
     val duplicates = list.getDuplicates()
     if (duplicates.isNotEmpty()) {
-        println("Found duplicates for ${credential.name}: ${duplicates.joinToString(", ")}")
+        println("[${credential.name}] Found duplicates: ${duplicates.joinToString(", ")}")
         return
     }
     print("${credential.name} (${credential.address}): ")
