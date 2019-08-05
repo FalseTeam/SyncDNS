@@ -30,7 +30,7 @@ fun Map<String, List<DnsRecord>>.validate(): Boolean {
             if (ip.matcher(it.ip).find()) addr = true
             if (name && addr) return@rec
             result = false
-            print("[$s] \"${it.name}\" -> \"${it.ip}\": ")
+            print("[$s] ${it.name} -> ${it.ip}: ")
             if (addr) println("Hostname does not match the RegEx")
             else if (name) println("IP address does not match the RegEx")
             else println("Hostname and IP address does not match the RegEx")
