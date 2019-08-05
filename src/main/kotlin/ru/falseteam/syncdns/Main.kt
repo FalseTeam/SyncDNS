@@ -21,7 +21,7 @@ fun main() {
         exitProcess(1)
     }
     val ip = Pattern.compile("^(?:(?:25[0-5]|2[0-4]\\d|[01]?\\d\\d?)\\.){3}(?:25[0-5]|2[0-4]\\d|[01]?\\d\\d?)$")
-    val domain = Pattern.compile("^[a-z0-9](?:[a-z0-9-_]{0,61}[a-z0-9])?(?:\\.[a-z0-9](?:[a-z0-9-_]{0,61}[a-z0-9])?)*$")
+    val domain = Pattern.compile("^[a-zA-Z0-9](?:[a-zA-Z0-9-_]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-_]{0,61}[a-zA-Z0-9])?)*$")
     var ret = false
     records.forEach { (s, list) ->
         val duplicates = list.getDuplicates()
