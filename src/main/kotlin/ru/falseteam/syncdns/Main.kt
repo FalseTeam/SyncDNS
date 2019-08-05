@@ -22,25 +22,27 @@ fun main() {
     }
     val ip = Pattern.compile("^(?:(?:25[0-5]|2[0-4]\\d|[01]?\\d\\d?)\\.){3}(?:25[0-5]|2[0-4]\\d|[01]?\\d\\d?)$")
     val domain = Pattern.compile("^[a-z0-9](?:[a-z0-9-_]{0,61}[a-z0-9])?(?:\\.[a-z0-9](?:[a-z0-9-_]{0,61}[a-z0-9])?)*$")
+    var ret = false
     records.forEach { (s, list) ->
         val duplicates = list.getDuplicates()
         if (duplicates.isNotEmpty()) {
             println("[$s] Found duplicates: ${duplicates.joinToString(", ")}")
-            exitProcess(1)
+            ret = true
         }
         list.forEach {
             var matcher = ip.matcher(it.ip)
             if (!matcher.find()) {
                 println("[$s] IP address '${it.ip}' does not match the RegEx")
-                exitProcess(1)
+                ret = true
             }
             matcher = domain.matcher(it.name)
             if (!matcher.find()) {
                 println("[$s] Hostname '${it.name}' does not match the RegEx")
-                exitProcess(1)
+                ret = true
             }
         }
     }
+    if (ret) exitProcess(1)
     credentials.forEach { updateDnsTable(it, records) }
 }
 
@@ -49,7 +51,7 @@ fun updateDnsTable(credential: Credential, records: Map<String, List<DnsRecord>>
     val list = records["common"].orEmpty().toMutableList()
     list += credential.include.filter { it != credential.name }.map { records[it].orEmpty() }
         .flatMap { it.asIterable() }
-    list.removeIf { override.map { it.name }.contains(it.name) }
+    list.removeIf { rec -> override.map { it.name }.contains(rec.name) }
     list += override
     val duplicates = list.getDuplicates()
     if (duplicates.isNotEmpty()) {
