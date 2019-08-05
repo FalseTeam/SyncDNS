@@ -12,8 +12,8 @@ fun Ini.toMapOfDnsRecord() = this.map { it.key to it.value.map { record -> DnsRe
 
 fun List<DnsRecord>.getDuplicates() = this.groupingBy { it.name }.eachCount().filter { it.value > 1 }.map { it.key }
 
-val ip = Pattern.compile("^(?:(?:25[0-5]|2[0-4]\\d|[01]?\\d\\d?)\\.){3}(?:25[0-5]|2[0-4]\\d|[01]?\\d\\d?)$")!!
 val domain = Pattern.compile("^[a-zA-Z0-9](?:[a-zA-Z0-9-_]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-_]{0,61}[a-zA-Z0-9])?)*$")!!
+val ip = Pattern.compile("^(?:(?:25[0-5]|2[0-4]\\d|[01]?\\d\\d?)\\.){3}(?:25[0-5]|2[0-4]\\d|[01]?\\d\\d?)$")!!
 
 fun Map<String, List<DnsRecord>>.validate(): Boolean {
     var result = true
@@ -23,17 +23,16 @@ fun Map<String, List<DnsRecord>>.validate(): Boolean {
             println("[$s] Found duplicates: ${duplicates.joinToString(", ")}")
             result = false
         }
-        list.forEach {
-            var matcher = ip.matcher(it.ip)
-            if (!matcher.find()) {
-                println("[$s] IP address '${it.ip}' does not match the RegEx")
-                result = false
-            }
-            matcher = domain.matcher(it.name)
-            if (!matcher.find()) {
-                println("[$s] Hostname '${it.name}' does not match the RegEx")
-                result = false
-            }
+        list.forEach rec@{
+            var name = false
+            var addr = false
+            if (domain.matcher(it.name).find()) name = true
+            if (ip.matcher(it.ip).find()) addr = true
+            if (name && addr) return@rec
+            result = false
+            if (addr) println("[$s] \"${it.name}\" -> \"${it.ip}\": Hostname does not match the RegEx")
+            else if (name) println("[$s] \"${it.name}\" -> \"${it.ip}\": IP address does not match the RegEx")
+            else println("[$s] \"${it.name}\" -> \"${it.ip}\": Hostname and IP address does not match the RegEx")
         }
     }
     return result
