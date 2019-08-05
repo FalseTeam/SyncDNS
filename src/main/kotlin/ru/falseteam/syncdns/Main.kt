@@ -35,6 +35,7 @@ fun updateDnsTable(credential: Credential, records: Map<String, List<DnsRecord>>
         println("Found duplicates for ${credential.name}: ${duplicates.joinToString(", ")}")
         return
     }
+    print("${credential.name} (${credential.address}): ")
     try {
         val dnsApi = credential.connect().getDnsApi()
         val currentRecords = dnsApi.getRecords()
@@ -49,7 +50,8 @@ fun updateDnsTable(credential: Credential, records: Map<String, List<DnsRecord>>
         }
         list.filter { rec -> currentRecords.values.find { it.name == rec.name } == null }
             .forEach { dnsApi.addRecord(it) }
+        println("DNS records successfully synchronized")
     } catch (e: MikrotikApiException) {
-        println("${credential.name} (${credential.address}): ${e.message}")
+        println(e.message)
     }
 }
