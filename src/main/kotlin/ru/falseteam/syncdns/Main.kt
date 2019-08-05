@@ -4,7 +4,6 @@ import me.legrange.mikrotik.MikrotikApiException
 import org.ini4j.Ini
 import java.io.File
 import java.io.FileNotFoundException
-import java.util.regex.Pattern
 import kotlin.system.exitProcess
 
 fun main() {
@@ -20,29 +19,7 @@ fun main() {
         println(e.message)
         exitProcess(1)
     }
-    val ip = Pattern.compile("^(?:(?:25[0-5]|2[0-4]\\d|[01]?\\d\\d?)\\.){3}(?:25[0-5]|2[0-4]\\d|[01]?\\d\\d?)$")
-    val domain = Pattern.compile("^[a-zA-Z0-9](?:[a-zA-Z0-9-_]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-_]{0,61}[a-zA-Z0-9])?)*$")
-    var ret = false
-    records.forEach { (s, list) ->
-        val duplicates = list.getDuplicates()
-        if (duplicates.isNotEmpty()) {
-            println("[$s] Found duplicates: ${duplicates.joinToString(", ")}")
-            ret = true
-        }
-        list.forEach {
-            var matcher = ip.matcher(it.ip)
-            if (!matcher.find()) {
-                println("[$s] IP address '${it.ip}' does not match the RegEx")
-                ret = true
-            }
-            matcher = domain.matcher(it.name)
-            if (!matcher.find()) {
-                println("[$s] Hostname '${it.name}' does not match the RegEx")
-                ret = true
-            }
-        }
-    }
-    if (ret) exitProcess(1)
+    if (!records.validate()) exitProcess(1)
     credentials.forEach { updateDnsTable(it, records) }
 }
 
